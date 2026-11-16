@@ -32,3 +32,16 @@ AuraPlay is an Object-Oriented C++11 sports-science and squad management engine 
 1. **Compile `server.cpp` with Windows Sockets (`-lws2_32`):**
    ```powershell
    g++ -std=c++11 -D_WIN32_WINNT=0x0A00 server.cpp -o server.exe -lws2_32 -lcrypt32
+   ```
+2. **Start the C++ Server:**
+   ```powershell
+   .\server.exe
+   ```
+3. **Open in Browser:**
+   Navigate to `http://localhost:8080` while keeping the terminal window running.
+
+### Option 2: Standalone Console CLI (`main.cpp`)
+```bash
+g++ -std=c++11 main.cpp -o auraplay
+./auraplay
+```
