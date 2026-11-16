@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraPlay | Football Athlete Load &amp; Performance Engine</title>
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #273549;
+      --border-color: #334155;
+      --border-light: #475569;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --accent-primary: #10b981;
+      --accent-primary-glow: rgba(16, 185, 129, 0.25);
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-blue: #3b82f6;
+
+      --tier-fresh: #10b981;
+      --tier-fresh-bg: rgba(16, 185, 129, 0.15);
+      --tier-moderate: #eab308;
+      --tier-moderate-bg: rgba(234, 179, 8, 0.15);
+      --tier-amber: #f97316;
+      --tier-amber-bg: rgba(249, 115, 22, 0.15);
+      --tier-critical: #ef4444;
+      --tier-critical-bg: rgba(239, 68, 68, 0.2);
+
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #34d399, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      outline: none;
+      text-decoration: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 5px 18px rgba(16, 185, 129, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      box-shadow: 0 3px 12px rgba(239, 68, 68, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    .btn-amber:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: #fbbf24;
+    }
+
+    .btn-sm {
+      padding: 5px 11px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .btn-icon {
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 24px auto 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Duplicate Warning Banner */
+    #duplicateWarningBanner {
+      display: none;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.28) 100%);
+      border: 1px solid #f59e0b;
+      border-left: 6px solid #f59e0b;
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 25px rgba(245, 158, 11, 0.25);
+      animation: warnPulse 2.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes warnPulse {
+      0% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+      100% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.45); }
+    }
+
+    .warning-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .warning-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fde68a;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .warning-icon {
+      font-size: 20px;
+    }
+
+    .warning-close {
+      background: transparent;
+      border: none;
+      color: #fde68a;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+    }
+
+    .warning-msg {
+      font-size: 13px;
+      color: #fef3c7;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 10px 14px;
+      border-radius: 6px;
+      border-left: 3px solid #f59e0b;
+      font-family: monospace;
+      margin-top: 6px;
+    }
+
+    /* Medical Alert Banner */
+    #medicalAlertBanner {
+      display: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(185, 28, 28, 0.28) 100%);
+      border: 1px solid #ef4444;
+      border-left: 6px solid #ef4444;
+      border-radius: 10px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 30px rgba(239, 68, 68, 0.3);
+      animation: alertPulse 2.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes alertPulse {
+      0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
+      100% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.55); }
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .alert-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fca5a5;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .alert-title-icon {
+      font-size: 20px;
+      animation: shake 0.6s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+    }
+
+    .alert-close {
+      background: transparent;
+      border: none;
+      color: #fca5a5;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    .alert-messages {
+      list-style: none;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .alert-messages li {
+      font-size: 13px;
+      color: #fee2e2;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 14px;
+      border-radius: 6px;
+      border-left: 3px solid #ef4444;
+      font-family: monospace;
+    }
+
+    .alert-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* KPI Summary Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-2px);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--card-accent, var(--accent-primary));
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .kpi-subtext {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* MVP Showcase Card */
+    .mvp-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #172554 100%);
+      border: 1px solid #6366f1;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.2);
+    }
+
+    .mvp-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mvp-badge {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+    }
+
+    .mvp-details h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mvp-details p {
+      font-size: 12px;
+      color: #93c5fd;
+      margin-top: 2px;
+    }
+
+    .mvp-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .mvp-stat-box {
+      text-align: right;
+    }
+
+    .mvp-stat-box .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .mvp-stat-box .stat-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    /* Layout Columns */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1080px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Content Panels */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Squad Table / Cards */
+    .squad-table-container {
+      overflow-x: auto;
+    }
+
+    table.squad-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.squad-table th {
+      text-align: left;
+      padding: 12px 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    table.squad-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      vertical-align: middle;
+    }
+
+    table.squad-table tr:hover td {
+      background: rgba(30, 41, 59, 0.4);
+    }
+
+    .action-cell {
+      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Fatigue Meter Component */
+    .fatigue-cell {
+      min-width: 190px;
+    }
+
+    .fatigue-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .fatigue-track {
+      width: 100%;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .fatigue-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease, background-color 0.3s;
+    }
+
+    .fatigue-bar.fresh {
+      background: linear-gradient(90deg, #10b981, #34d399);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    .fatigue-bar.moderate {
+      background: linear-gradient(90deg, #eab308, #facc15);
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+    .fatigue-bar.amber {
+      background: linear-gradient(90deg, #f97316, #fb923c);
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+    }
+    .fatigue-bar.critical {
+      background: linear-gradient(90deg, #ef4444, #f43f5e);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+      animation: pulseBar 1.5s infinite alternate;
+    }
+
+    @keyframes pulseBar {
+      0% { opacity: 0.75; }
+      100% { opacity: 1; }
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .badge-pos {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .badge-pos.att {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+    .badge-pos.mid {
+      background: rgba(6, 182, 212, 0.15);
+      color: #22d3ee;
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+    .badge-pos.def {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    .badge-pos.gk {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-tier-fresh { background: var(--tier-fresh-bg); color: var(--tier-fresh); }
+    .badge-tier-moderate { background: var(--tier-moderate-bg); color: var(--tier-moderate); }
+    .badge-tier-amber { background: var(--tier-amber-bg); color: var(--tier-amber); }
+    .badge-tier-critical { background: var(--tier-critical-bg); color: var(--tier-critical); }
+
+    .rating-pill {
+      font-weight: 700;
+      color: #38bdf8;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Matchweek Simulator Styles */
+    .simulator-container {
+      margin-top: 10px;
+    }
+
+    .sim-context-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .context-field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .context-field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sim-player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      transition: all 0.2s;
+    }
+
+    .sim-player-card:hover {
+      border-color: var(--border-light);
+    }
+
+    .sim-player-card.has-critical {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.04);
+    }
+
+    .sim-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sim-player-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sim-player-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .sim-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 12px 14px;
+      border-radius: 8px;
+    }
+
+    .sim-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sim-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .sim-field input[type="number"] {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .sim-field input[type="number"]:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .rpe-slider-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rpe-slider-container input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-primary);
+    }
+
+    .rpe-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      min-width: 20px;
+      text-align: right;
+    }
+
+    /* Simulation Action Bottom Bar */
+    .sim-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-primary-glow);
+    }
+
+    select.form-control {
+      cursor: pointer;
+    }
+
+    /* Architecture Info Box */
+    .arch-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 12px;
+    }
+
+    .arch-card h4 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arch-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+    }
+
+    .arch-item:last-child {
+      border-bottom: none;
+    }
+
+    .arch-item .label {
+      color: var(--text-muted);
+    }
+
+    .arch-item .val {
+      font-weight: 600;
+      color: #e2e8f0;
+      font-family: monospace;
+    }
+
+    /* Toast Notification */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-primary);
+      border-radius: 8px;
+      padding: 12px 18px;
+      color: #ffffff;
+      font-size: 13px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+      min-width: 280px;
+      max-width: 450px;
+    }
+
+    .toast.error {
+      border-left-color: #ef4444;
+    }
+
+    .toast.amber {
+      border-left-color: #f59e0b;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    /* Tab switcher */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--accent-cyan);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>AuraPlay Engine</h1>
+        <p>Athletic Load &amp; Performance System &bull; C++11 REST API</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" id="btnLoad" title="Call POST /api/load">
+        📂 Load Data
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btnSave" title="Call POST /api/save">
+        💾 Save Data
+      </button>
+      <button class="btn btn-secondary btn-sm btn-icon" id="btnRefresh" title="Refresh Data">
+        🔄
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Duplicate Player Warning Banner -->
+    <section id="duplicateWarningBanner" class="warning-banner" aria-live="assertive">
+      <div class="warning-header">
+        <div class="warning-title">
+          <span class="warning-icon">⚠️</span>
+          <span>DUPLICATE ATHLETE REGISTRATION REJECTED</span>
+        </div>
+        <button class="warning-close" id="btnCloseWarning" title="Dismiss Warning">&times;</button>
+      </div>
+      <div id="duplicateWarningMessage" class="warning-msg"></div>
+    </section>
+
+    <!-- Red Medical Alert Banner (OveruseFatigueException) -->
+    <section id="medicalAlertBanner" aria-live="assertive">
+      <div class="alert-header">
+        <div class="alert-title">
+          <span class="alert-title-icon">🚨</span>
+          <span>CRITICAL MEDICAL ALERT &bull; OVERUSE FATIGUE PROTOCOL ACTIVATED</span>
+        </div>
+        <button class="alert-close" id="btnCloseAlert" title="Dismiss Alert">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: #fecaca; margin-bottom: 6px;">
+        The system caught one or more <strong>OveruseFatigueException</strong> occurrences during athletic load evaluation:
+      </p>
+      <ul class="alert-messages" id="alertList"></ul>
+      <div class="alert-note">
+        <span>🛡️</span>
+        <span>Safety Protocol Executed: Impacted athletes were involuntarily <strong>BENCHED</strong> and prescribed clinical rest (Fatigue safely reset to 0/100).</span>
+      </div>
+    </section>
+
+    <!-- KPI Summary Row -->
+    <section class="kpi-grid">
+      <div class="kpi-card" style="--card-accent: #10b981;">
+        <div class="kpi-label">Active Squad Size</div>
+        <div class="kpi-value"><span id="kpiSquadSize">0</span> <span style="font-size:14px;color:var(--text-muted)">Athletes</span></div>
+        <div class="kpi-subtext">Registered in TeamManager</div>
+      </div>
+
+      <div class="kpi-card" style="--card-accent: #06b6d4;">
+        <div class="kpi-label">Squad Avg Rating</div>
+        <div class="kpi-value"><span id="kpiAvgRating">0.0</span> <span style="font-size:14px;color:var(--text-muted)">/ 10.0</span></div>
+        <div class="kpi-subtext">Team-wide performance index</div>
+      </div>
+
+      <div class="kpi-card" style="--card-accent: #f59e0b;">
+        <div class="kpi-label">Team Fatigue Avg</div>
+        <div class="kpi-value"><span id="kpiAvgFatigue">0</span> <span style="font-size:14px;color:var(--text-muted)">/ 100</span></div>
+        <div class="kpi-subtext" id="kpiFatigueTier">Readiness Level: FRESH</div>
+      </div>
+
+      <div class="kpi-card" style="--card-accent: #ef4444;">
+        <div class="kpi-label">High Risk / Critical</div>
+        <div class="kpi-value"><span id="kpiRiskCount">0</span> <span style="font-size:14px;color:var(--text-muted)">Athletes</span></div>
+        <div class="kpi-subtext">Fatigue &ge; 75 / 100</div>
+      </div>
+    </section>
+
+    <!-- MVP Showcase Banner (Operator Overloading operator>) -->
+    <section class="mvp-banner" id="mvpSection">
+      <div class="mvp-info">
+        <div class="mvp-badge">👑</div>
+        <div class="mvp-details">
+          <h2><span id="mvpName">No MVP Selected</span> <span class="badge badge-pos" id="mvpPos">N/A</span></h2>
+          <p>Determined using C++11 overloaded <strong>operator&gt;</strong> on Player average rating</p>
+        </div>
+      </div>
+      <div class="mvp-stats">
+        <div class="mvp-stat-box">
+          <div class="stat-val" id="mvpRating">0.0</div>
+          <div class="stat-lbl">Average Rating</div>
+        </div>
+        <div class="mvp-stat-box">
+          <div class="stat-val" id="mvpMatches">0</div>
+          <div class="stat-lbl">Matches Played</div>
+        </div>
+        <div class="mvp-stat-box">
+          <div class="stat-val" id="mvpFatigue">0/100</div>
+          <div class="stat-lbl">Fatigue Load</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Two-Column Layout -->
+    <div class="dashboard-layout">
+
+      <!-- Left Column: Squad & Simulator Views -->
+      <main>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="tabSquad">📋 Squad &amp; Load Monitor</button>
+          <button class="tab-btn" data-tab="tabSim">⚽ Matchweek Simulator</button>
+        </div>
+
+        <!-- TAB 1: SQUAD TABLE & LOAD MONITOR -->
+        <div id="tabSquad" class="tab-pane active">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Squad Performance &amp; Fatigue Monitor</h3>
+                <p class="panel-subtitle">Real-time physiological load tracking &amp; status tiers</p>
+              </div>
+              <div style="font-size: 11px; color: var(--text-dim);">
+                <span class="badge badge-tier-fresh">FRESH &lt;40</span>
+                <span class="badge badge-tier-moderate">MODERATE &lt;75</span>
+                <span class="badge badge-tier-amber">HIGH RISK &lt;100</span>
+                <span class="badge badge-tier-critical">CRITICAL &ge;100</span>
+              </div>
+            </div>
+
+            <div class="squad-table-container">
+              <table class="squad-table">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Role</th>
+                    <th>Age</th>
+                    <th>Matches</th>
+                    <th>Avg Rating</th>
+                    <th>Fatigue Load Meter</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="squadTableBody">
+                  <tr>
+                    <td colspan="7" class="empty-state">
+                      <div class="empty-state-icon">⚽</div>
+                      <div>No players registered yet. Add a player using the form or click Load Data.</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: MATCHWEEK SIMULATOR -->
+        <div id="tabSim" class="tab-pane">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Matchweek Evaluation Engine</h3>
+                <p class="panel-subtitle">Computes position-specific Strategy ratings and applies physiological exertion wear</p>
+              </div>
+            </div>
+
+            <div class="sim-context-bar">
+              <div class="context-field">
+                <label for="simTeamGoalsConceded">Team Goals Conceded:</label>
+                <input type="number" id="simTeamGoalsConceded" class="form-control" style="width: 80px;" min="0" max="20" value="1">
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted);">
+                Defensive Context: Clean sheet grants bonus (+1.5 DEF / +2.0 GK). Conceded goals deduct from defensive ratings.
+              </div>
+            </div>
+
+            <div id="simulatorList" class="simulator-container">
+              <!-- Dynamically populated per player with role-specific inputs -->
+            </div>
+
+            <div class="sim-footer">
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" id="btnFillStandard">⚡ Fill All 90 Mins</button>
+                <button class="btn btn-secondary btn-sm" id="btnZeroFatigued">🛡️ Rest Critical Players</button>
+              </div>
+              <button class="btn btn-primary" id="btnRunSimulation">
+                🚀 Simulate Matchweek &amp; Evaluate Load
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Column: Add Player & System Info -->
+      <aside>
+        <!-- Add Player Form -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title">Add New Athlete</h3>
+              <p class="panel-subtitle">Register to C++ TeamManager</p>
+            </div>
+          </div>
+
+          <form id="addPlayerForm">
+            <div class="form-group">
+              <label for="addName">Athlete Name</label>
+              <input type="text" id="addName" class="form-control" placeholder="e.g. Kylian Mbappé" required>
+            </div>
+
+            <div class="form-group">
+              <label for="addAge">Age</label>
+              <input type="number" id="addAge" class="form-control" min="15" max="45" value="23" required>
+            </div>
+
+            <div class="form-group">
+              <label for="addPosition">Tactical Position</label>
+              <select id="addPosition" class="form-control">
+                <option value="0">Attacker (AttackerRatingStrategy)</option>
+                <option value="1">Midfielder (AttackerRatingStrategy)</option>
+                <option value="2">Defender (DefenderRatingStrategy)</option>
+                <option value="3">Goalkeeper (GoalkeeperRatingStrategy)</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              ➕ Add Player to Squad
+            </button>
+          </form>
+        </div>
+
+        <!-- OOP Architecture Card -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3 class="panel-title">OOP Architecture</h3>
+          </div>
+          <div class="arch-card">
+            <h4>⚙️ C++11 OOP Implementation</h4>
+            <div class="arch-item">
+              <span class="label">Abstract Base</span>
+              <span class="val">Person (pure virtual)</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Derived Class</span>
+              <span class="val">Player (encapsulation)</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Strategy Pattern</span>
+              <span class="val">IRatingStrategy</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Destructor Cleanup</span>
+              <span class="val">Player::~Player()</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Memory Safety</span>
+              <span class="val">Rule of Three</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Operator Overload</span>
+              <span class="val">operator&gt; (MVP)</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">Exception Model</span>
+              <span class="val">OveruseFatigueException</span>
+            </div>
+            <div class="arch-item">
+              <span class="label">HTTP Server</span>
+              <span class="val">cpp-httplib :8080</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <script>
+    // State management: starts empty (0 players)
+    let squad = [];
+
+    // Helper: Toast notifications
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'error' ? '❌' : (type === 'amber' ? '⚠️' : '✅');
+      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Helper: Determine fatigue class and tier info
+    function getFatigueDetails(fatigue) {
+      if (fatigue < 40) {
+        return {
+          tier: 'FRESH - GREEN',
+          barClass: 'fresh',
+          badgeClass: 'badge-tier-fresh',
+          color: '#10b981'
+        };
+      } else if (fatigue < 75) {
+        return {
+          tier: 'MODERATE - YELLOW',
+          barClass: 'moderate',
+          badgeClass: 'badge-tier-moderate',
+          color: '#eab308'
+        };
+      } else if (fatigue < 100) {
+        return {
+          tier: 'HIGH RISK - AMBER',
+          barClass: 'amber',
+          badgeClass: 'badge-tier-amber',
+          color: '#f97316'
+        };
+      } else {
+        return {
+          tier: 'CRITICAL - RED',
+          barClass: 'critical',
+          badgeClass: 'badge-tier-critical',
+          color: '#ef4444'
+        };
+      }
+    }
+
+    function getPositionBadgeClass(pos) {
+      const p = String(pos).toLowerCase();
+      if (p.includes('att')) return 'badge-pos att';
+      if (p.includes('mid')) return 'badge-pos mid';
+      if (p.includes('def')) return 'badge-pos def';
+      if (p.includes('goal') || p.includes('gk')) return 'badge-pos gk';
+      return 'badge-pos';
+    }
+
+    // 1. Fetch Squad from GET /api/squad
+    async function loadSquad() {
+      try {
+        const res = await fetch('/api/squad');
+        if (!res.ok) throw new Error('Failed to fetch squad');
+        squad = await res.json();
+        renderSquadTable();
+        renderKPICards();
+        renderSimulator();
+        loadMVP();
+      } catch (err) {
+        console.error('Error fetching squad:', err);
+        showToast('Error connecting to server /api/squad', 'error');
+      }
+    }
+
+    // 2. Fetch MVP from GET /api/mvp
+    async function loadMVP() {
+      try {
+        const res = await fetch('/api/mvp');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && !data.empty && data.name) {
+          document.getElementById('mvpName').textContent = data.name;
+          document.getElementById('mvpPos').textContent = data.position;
+          document.getElementById('mvpPos').className = getPositionBadgeClass(data.position);
+          document.getElementById('mvpRating').textContent = (Number(data.avgRating) || 0).toFixed(1);
+          document.getElementById('mvpMatches').textContent = data.matchesPlayed || 0;
+          document.getElementById('mvpFatigue').textContent = `${data.fatigue || 0}/100`;
+        } else {
+          document.getElementById('mvpName').textContent = 'No MVP Selected';
+          document.getElementById('mvpPos').textContent = 'N/A';
+          document.getElementById('mvpRating').textContent = '0.0';
+          document.getElementById('mvpMatches').textContent = '0';
+          document.getElementById('mvpFatigue').textContent = '0/100';
+        }
+      } catch (err) {
+        console.error('Error loading MVP:', err);
+      }
+    }
+
+    // Render Squad Table with Rest and Remove buttons
+    function renderSquadTable() {
+      const tbody = document.getElementById('squadTableBody');
+      if (!squad || squad.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <div class="empty-state-icon">⚽</div>
+              <div>No players registered yet. Add a player using the form or click <strong>Load Data</strong>!</div>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = squad.map((p, idx) => {
+        const fatigue = Number(p.fatigue) || 0;
+        const details = getFatigueDetails(fatigue);
+        const posClass = getPositionBadgeClass(p.position);
+        const percent = Math.min(100, Math.max(0, fatigue));
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #fff;">${escapeHtml(p.name)}</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Athlete ID: #${idx + 1}</div>
+            </td>
+            <td><span class="${posClass}">${escapeHtml(p.position)}</span></td>
+            <td>${p.age}</td>
+            <td><strong>${p.matchesPlayed}</strong></td>
+            <td><span class="rating-pill">⭐ ${(Number(p.avgRating) || 0).toFixed(1)}</span></td>
+            <td class="fatigue-cell">
+              <div class="fatigue-meta">
+                <span class="badge ${details.badgeClass}">${details.tier}</span>
+                <span style="color: ${details.color};">${fatigue} / 100</span>
+              </div>
+              <div class="fatigue-track">
+                <div class="fatigue-bar ${details.barClass}" style="width: ${percent}%;"></div>
+              </div>
+            </td>
+            <td>
+              <div class="action-cell">
+                <button class="btn btn-secondary btn-sm" onclick="restPlayer(${idx}, '${escapeHtml(p.name)}')" title="Reset player fatigue to 0">
+                  🛌 Rest
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="removePlayer(${idx}, '${escapeHtml(p.name)}')" title="Remove player from squad">
+                  🗑️ Remove
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render KPI Cards
+    function renderKPICards() {
+      document.getElementById('kpiSquadSize').textContent = squad.length;
+
+      if (squad.length === 0) {
+        document.getElementById('kpiAvgRating').textContent = '0.0';
+        document.getElementById('kpiAvgFatigue').textContent = '0';
+        document.getElementById('kpiRiskCount').textContent = '0';
+        document.getElementById('kpiFatigueTier').textContent = 'Readiness Level: N/A';
+        return;
+      }
+
+      let totalRating = 0;
+      let totalMatches = 0;
+      let totalFatigue = 0;
+      let riskCount = 0;
+
+      squad.forEach(p => {
+        const f = Number(p.fatigue) || 0;
+        totalFatigue += f;
+        totalRating += Number(p.totalRating) || (Number(p.avgRating) * Number(p.matchesPlayed)) || 0;
+        totalMatches += Number(p.matchesPlayed) || 0;
+        if (f >= 75) riskCount++;
+      });
+
+      const avgRating = totalMatches > 0 ? (totalRating / totalMatches) : 0;
+      const avgFatigue = Math.round(totalFatigue / squad.length);
+      const avgDetails = getFatigueDetails(avgFatigue);
+
+      document.getElementById('kpiAvgRating').textContent = avgRating.toFixed(1);
+      document.getElementById('kpiAvgFatigue').textContent = avgFatigue;
+      document.getElementById('kpiFatigueTier').textContent = `Readiness Level: ${avgDetails.tier}`;
+      document.getElementById('kpiRiskCount').textContent = riskCount;
+    }
+
+    // Render Matchweek Simulator inputs
+    function renderSimulator() {
+      const container = document.getElementById('simulatorList');
+      if (!squad || squad.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div>No squad members available to simulate. Add athletes first.</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = squad.map((p, idx) => {
+        const fatigue = Number(p.fatigue) || 0;
+        const details = getFatigueDetails(fatigue);
+        const posStr = String(p.position).toLowerCase();
+        const posClass = getPositionBadgeClass(p.position);
+        const isCritical = fatigue >= 100;
+
+        let roleInputsHtml = '';
+
+        if (posStr.includes('att') || posStr.includes('mid')) {
+          roleInputsHtml = `
+            <div class="sim-field">
+              <label>Goals Scored</label>
+              <input type="number" id="sim_goals_${idx}" min="0" max="10" value="0">
+            </div>
+            <div class="sim-field">
+              <label>Assists</label>
+              <input type="number" id="sim_assists_${idx}" min="0" max="10" value="0">
+            </div>
+          `;
+        } else if (posStr.includes('def')) {
+          roleInputsHtml = `
+            <div class="sim-field">
+              <label>Tackles Won</label>
+              <input type="number" id="sim_tackles_${idx}" min="0" max="20" value="3">
+            </div>
+            <div class="sim-field">
+              <label>Goals Scored</label>
+              <input type="number" id="sim_goals_${idx}" min="0" max="5" value="0">
+            </div>
+            <div class="sim-field">
+              <label>Assists</label>
+              <input type="number" id="sim_assists_${idx}" min="0" max="5" value="0">
+            </div>
+          `;
+        } else if (posStr.includes('goal') || posStr.includes('gk')) {
+          roleInputsHtml = `
+            <div class="sim-field">
+              <label>Saves Made</label>
+              <input type="number" id="sim_saves_${idx}" min="0" max="25" value="4">
+            </div>
+            <div class="sim-field">
+              <label>GK Conceded</label>
+              <input type="number" id="sim_conceded_${idx}" min="0" max="15" value="1">
+            </div>
+          `;
+        }
+
+        return `
+          <div class="sim-player-card ${isCritical ? 'has-critical' : ''}" id="simCard_${idx}">
+            <div class="sim-card-top">
+              <div class="sim-player-identity">
+                <span class="${posClass}">${escapeHtml(p.position)}</span>
+                <span class="sim-player-name">${escapeHtml(p.name)}</span>
+                <span class="badge ${details.badgeClass}">${details.tier} (${fatigue}/100)</span>
+                ${isCritical ? '<span class="badge badge-tier-critical">⚠️ WILL BENCH FOR MEDICAL RECOVERY</span>' : ''}
+              </div>
+              <div style="font-size: 12px; color: var(--text-dim);">
+                Rating Strategy: <em>${escapeHtml(p.position)}RatingStrategy</em>
+              </div>
+            </div>
+
+            <div class="sim-inputs-grid">
+              <div class="sim-field">
+                <label>Minutes (1-90)</label>
+                <input type="number" id="sim_minutes_${idx}" min="0" max="90" value="90">
+              </div>
+
+              <div class="sim-field" style="grid-column: span 2;">
+                <label>Perceived Exertion (RPE 1-10)</label>
+                <div class="rpe-slider-container">
+                  <input type="range" id="sim_exertion_${idx}" min="1" max="10" value="7" 
+                         oninput="document.getElementById('rpe_val_${idx}').textContent = this.value">
+                  <span class="rpe-val" id="rpe_val_${idx}">7</span>
+                </div>
+              </div>
+
+              ${roleInputsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. POST /api/simulate
+    async function runSimulation() {
+      if (!squad || squad.length === 0) {
+        showToast('No players to simulate! Please add players first.', 'amber');
+        return;
+      }
+
+      const btn = document.getElementById('btnRunSimulation');
+      btn.disabled = true;
+      btn.textContent = '⏳ Simulating Matchweek...';
+
+      const teamGoalsConceded = parseInt(document.getElementById('simTeamGoalsConceded').value, 10) || 0;
+
+      const playerStats = squad.map((p, idx) => {
+        const minutes = parseInt(document.getElementById(`sim_minutes_${idx}`)?.value, 10) || 0;
+        const exertion = parseInt(document.getElementById(`sim_exertion_${idx}`)?.value, 10) || 7;
+        const goals = parseInt(document.getElementById(`sim_goals_${idx}`)?.value, 10) || 0;
+        const assists = parseInt(document.getElementById(`sim_assists_${idx}`)?.value, 10) || 0;
+        const tackles = parseInt(document.getElementById(`sim_tackles_${idx}`)?.value, 10) || 0;
+        const saves = parseInt(document.getElementById(`sim_saves_${idx}`)?.value, 10) || 0;
+        const goalsConceded = parseInt(document.getElementById(`sim_conceded_${idx}`)?.value, 10) || 0;
+
+        return {
+          id: idx,
+          name: p.name,
+          minutesPlayed: minutes,
+          exertion: exertion,
+          goals: goals,
+          assists: assists,
+          tackles: tackles,
+          saves: saves,
+          goalsConceded: goalsConceded
+        };
+      });
+
+      try {
+        const res = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            teamGoalsConceded: teamGoalsConceded,
+            playerStats: playerStats
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Simulation failed');
+
+        const alerts = data.alerts || data.medicalAlerts || [];
+        if (alerts.length > 0) {
+          showMedicalAlerts(alerts);
+          showToast(`⚠️ ${alerts.length} OveruseFatigueException alert(s) triggered! Players benched.`, 'amber');
+        } else {
+          hideMedicalAlerts();
+          showToast('Matchweek simulation evaluated successfully!', 'success');
+        }
+
+        await loadSquad();
+      } catch (err) {
+        console.error('Simulation error:', err);
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Simulate Matchweek & Evaluate Load';
+      }
+    }
+
+    // Display / Hide Warning Banner for Duplicates
+    function showDuplicateWarning(message) {
+      const banner = document.getElementById('duplicateWarningBanner');
+      const msgBox = document.getElementById('duplicateWarningMessage');
+      msgBox.textContent = message;
+      banner.style.display = 'block';
+      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function hideDuplicateWarning() {
+      document.getElementById('duplicateWarningBanner').style.display = 'none';
+      document.getElementById('duplicateWarningMessage').textContent = '';
+    }
+
+    // Display / Hide Medical Alert Banner
+    function showMedicalAlerts(alerts) {
+      const banner = document.getElementById('medicalAlertBanner');
+      const list = document.getElementById('alertList');
+      list.innerHTML = alerts.map(msg => `<li>${escapeHtml(msg)}</li>`).join('');
+      banner.style.display = 'block';
+      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function hideMedicalAlerts() {
+      document.getElementById('medicalAlertBanner').style.display = 'none';
+      document.getElementById('alertList').innerHTML = '';
+    }
+
+    // 4. POST /api/rest
+    async function restPlayer(idx, name) {
+      try {
+        const res = await fetch('/api/rest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: idx, name: name })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to rest player');
+        showToast(data.message || `${name} rested successfully!`);
+        await loadSquad();
+      } catch (err) {
+        console.error('Rest error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    // 5. POST /api/remove (Erases player by index, triggering Player::~Player())
+    async function removePlayer(idx, name) {
+      if (!confirm(`Are you sure you want to remove '${name}' from the squad?`)) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ index: idx, id: idx, name: name })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to remove player');
+        showToast(data.message || `Player '${name}' removed!`);
+        await loadSquad();
+      } catch (err) {
+        console.error('Remove error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    // 6. POST /api/add (With duplicate detection and warning banner display)
+    document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('addName').value.trim();
+      const age = parseInt(document.getElementById('addAge').value, 10);
+      const position = parseInt(document.getElementById('addPosition').value, 10);
+
+      if (!name) return;
+
+      try {
+        const res = await fetch('/api/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, age, position })
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.success === false) {
+          const errMsg = data.error || data.message || 'Failed to add player';
+          showDuplicateWarning(errMsg);
+          showToast(errMsg, 'amber');
+          return;
+        }
+
+        // Successfully added
+        hideDuplicateWarning();
+        showToast(data.message || `Player ${name} added!`);
+        document.getElementById('addName').value = '';
+        await loadSquad();
+      } catch (err) {
+        console.error('Add player error:', err);
+        showToast(err.message, 'error');
+      }
+    });
+
+    // 7. POST /api/save
+    document.getElementById('btnSave').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/save', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Save failed');
+        showToast(data.message || 'Team data saved to team_data.txt!');
+      } catch (err) {
+        console.error('Save error:', err);
+        showToast(err.message, 'error');
+      }
+    });
+
+    // 8. POST /api/load
+    document.getElementById('btnLoad').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/load', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Load failed');
+        showToast(data.message || 'Team data loaded from team_data.txt!');
+        await loadSquad();
+      } catch (err) {
+        console.error('Load error:', err);
+        showToast(err.message, 'error');
+      }
+    });
+
+    // Fill all 90 mins helper
+    document.getElementById('btnFillStandard')?.addEventListener('click', () => {
+      squad.forEach((_, idx) => {
+        const minEl = document.getElementById(`sim_minutes_${idx}`);
+        if (minEl) minEl.value = 90;
+      });
+      showToast('Set all player minutes to 90');
+    });
+
+    // Zero out fatigued helper
+    document.getElementById('btnZeroFatigued')?.addEventListener('click', () => {
+      let count = 0;
+      squad.forEach((p, idx) => {
+        if (Number(p.fatigue) >= 75) {
+          const minEl = document.getElementById(`sim_minutes_${idx}`);
+          if (minEl) { minEl.value = 0; count++; }
+        }
+      });
+      showToast(`Rested ${count} high-risk athlete(s) (minutes set to 0)`);
+    });
+
+    // Dismiss Alert Banners
+    document.getElementById('btnCloseAlert').addEventListener('click', hideMedicalAlerts);
+    document.getElementById('btnCloseWarning').addEventListener('click', hideDuplicateWarning);
+
+    // Refresh button
+    document.getElementById('btnRefresh').addEventListener('click', () => {
+      loadSquad();
+      showToast('Squad and analytics refreshed');
+    });
+
+    // Run Simulation Button
+    document.getElementById('btnRunSimulation').addEventListener('click', runSimulation);
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(tabId)?.classList.add('active');
+      });
+    });
+
+    // Utility: HTML escaping
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initial Load: starts empty, fetches from server
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSquad();
+    });
+  </script>
+</body>
+</html>
